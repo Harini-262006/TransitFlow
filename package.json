@@ -1,0 +1,15 @@
+{
+  "name": "shift-management-monorepo",
+  "version": "1.0.0",
+  "description": "Full-stack Shift Management System with Auth",
+  "main": "server/server.js",
+  "scripts": {
+    "server": "cd server && npm start",
+    "client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "seed": "cd server && node scripts/seedAdmin.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
