@@ -40,17 +40,22 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:5174',
-  process.env.CLIENT_URL
+  process.env.CLIENT_URL,
+  process.env.FRONTEND_URL
 ].filter(Boolean);
 
 // Enable CORS
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow non-browser requests or allowed frontend origins
+    // Allow non-browser requests or explicitly allowed frontend origins
     if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
       return callback(null, true);
     }
-    // Permissive fallback for localhost ports
+    // Allow any Vercel preview or production deployment domains
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    // Permissive fallback for localhost ports during local dev
     if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
       return callback(null, true);
     }
@@ -118,11 +123,15 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`=================================`);
-  console.log(`Shift Management Server`);
-  console.log(`Running on: http://localhost:${PORT}`);
-  console.log(`Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`=================================`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`=================================`);
+    console.log(`Shift Management Server`);
+    console.log(`Running on: http://localhost:${PORT}`);
+    console.log(`Health Check: http://localhost:${PORT}/api/health`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`=================================`);
+  });
+}
+
+module.exports = app;
